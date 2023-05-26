@@ -22,14 +22,14 @@ namespace Net {
         int res = 0;
         HRESULT hres;
 
-        // Инициализация COM библиотеки
+        // Ініціалізація COM бібліотеки
         hres = CoInitializeEx(0, COINIT_MULTITHREADED);
         if (FAILED(hres)) {
             std::cerr << "Failed to initialize COM library. Error code: " << std::hex << hres << std::endl;
             return 1;
         }
 
-        // Инициализация WMI
+        // Ініціалізація WMI
         hres = CoInitializeSecurity(
             NULL,
             -1,
