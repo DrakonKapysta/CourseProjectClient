@@ -25,17 +25,20 @@ namespace Net {
 		double getFreeMemory();
 		int getCpuUsage();
 		void connectDefault();
-		void connectTo(string ServerPort);
+		//void connectTo(string ServerPort);
+		void receiveMessage();
+		void sendMessage();
+		void sendSystemStatus();
+		void closeConnection();
+		
 	private:
 		addrinfo hints, * p, * res;
-		int rv;
-		string msg;
-		int sockfd, numbytes;
-		string port;
-		char s[INET6_ADDRSTRLEN];
+		string msg, port;
+		int sockfd, numbytes, rv;
+		char hostAddr[INET6_ADDRSTRLEN];
 		WSADATA wsa;
-		void* get_in_addr(struct sockaddr*);
 	private:
+		void* get_in_addr(struct sockaddr*);
 		void init();
 	};
 

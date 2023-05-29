@@ -29,6 +29,10 @@ namespace Net {
 			return 1;
 		}
 	}
+    void Client::closeConnection() {
+        closesocket(sockfd);
+        cout << "Connection closed" << endl;
+    }
 	int Client::getCpuUsage() {
         int res = 0;
         HRESULT hres;
@@ -149,6 +153,13 @@ namespace Net {
         CoUninitialize();
         return res;
 	}
+    void Client::sendSystemStatus() {
+        this->msg = "Unused memory: " + to_string(getFreeMemory()) + " gb; "
+            + "CPU Usage: " + to_string(getCpuUsage()) + "%;";
+        if (send(sockfd, msg.c_str(), size(msg) + 1, 0) == -1) {
+            perror("send");
+        }
+    }
     void Client::connectDefault() 
     {
         init();
@@ -168,9 +179,10 @@ namespace Net {
             fprintf(stderr, "client: failed to connect\n");
             EXIT_FAILURE;
         }
-        inet_ntop(p->ai_family, get_in_addr((struct sockaddr*)p->ai_addr),s, sizeof s);
-        printf("client: connecting to %s\n", s);
+        inet_ntop(p->ai_family, get_in_addr((struct sockaddr*)p->ai_addr), hostAddr, sizeof(hostAddr));
+        printf("client: connecting to %s\n", hostAddr);
         freeaddrinfo(res);
+        sendSystemStatus();
     }
     void Client::init() {
         memset(&hints,0,sizeof(hints));
@@ -181,7 +193,14 @@ namespace Net {
             EXIT_FAILURE;
         }
     }
+    void Client::receiveMessage() {
+
+    }
+    void Client::sendMessage() {
+
+    }
 	Client::~Client()
 	{
+        WSACleanup();
 	}
 }
