@@ -1,10 +1,21 @@
 #include "Client.h"
 
 namespace Net {
-	Client::Client()
+	Client::Client(string ServerPort)
 	{
+        if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+            fprintf(stderr, "WSAStartup failed.\n");
+            exit(1);
+        }
+        port = ServerPort;
 	}
-
+    void* Client::get_in_addr(struct sockaddr* sa) // Отримання адреси
+    {
+        if (sa->sa_family == AF_INET) {
+            return &(((struct sockaddr_in*)&sa)->sin_addr);
+        }
+        return &(((struct sockaddr_in6*)&sa)->sin6_addr);
+    }
 	double Client::getFreeMemory() {
 		MEMORYSTATUSEX memoryStatus;
 		memoryStatus.dwLength = sizeof(memoryStatus);
@@ -138,6 +149,38 @@ namespace Net {
         CoUninitialize();
         return res;
 	}
+    void Client::connectDefault() 
+    {
+        init();
+        for (p = res; p != NULL; p = p->ai_next) {
+            if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+                perror("client: socket");
+                continue;
+            }
+            if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+                closesocket(sockfd);
+                perror("client: connect");
+                continue;
+            }
+            break;
+        }
+        if (p == NULL) {
+            fprintf(stderr, "client: failed to connect\n");
+            EXIT_FAILURE;
+        }
+        inet_ntop(p->ai_family, get_in_addr((struct sockaddr*)p->ai_addr),s, sizeof s);
+        printf("client: connecting to %s\n", s);
+        freeaddrinfo(res);
+    }
+    void Client::init() {
+        memset(&hints,0,sizeof(hints));
+        hints.ai_family = AF_INET;
+        hints.ai_socktype = SOCK_STREAM;
+        if ((rv = getaddrinfo(NULL, port.c_str(), &hints, &res)) != 0) {
+            fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+            EXIT_FAILURE;
+        }
+    }
 	Client::~Client()
 	{
 	}
