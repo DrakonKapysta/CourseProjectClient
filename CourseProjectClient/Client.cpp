@@ -9,7 +9,7 @@ namespace Net {
         }
         port = ServerPort;
 	}
-    void* Client::get_in_addr(struct sockaddr* sa) // Отримання адреси
+    void* Client::get_in_addr(struct sockaddr* sa)
     {
         if (sa->sa_family == AF_INET) {
             return &(((struct sockaddr_in*)&sa)->sin_addr);
@@ -37,14 +37,12 @@ namespace Net {
         int res = 0;
         HRESULT hres;
 
-        // Ініціалізація COM бібліотеки
         hres = CoInitializeEx(0, COINIT_MULTITHREADED);
         if (FAILED(hres)) {
             std::cerr << "Failed to initialize COM library. Error code: " << std::hex << hres << std::endl;
             return 1;
         }
 
-        // Ініціалізація WMI
         hres = CoInitializeSecurity(
             NULL,
             -1,
