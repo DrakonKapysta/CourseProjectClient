@@ -36,14 +36,16 @@ namespace Net {
 		int getCpuUsage();
 		void connectDefault();
 		//void connectTo(string ServerPort);
-		void receiveMessage();
-		void sendMessage();
+		void receiveTask();
+		void sendTaskResults(string data);
 		void sendSystemStatus();
 		void closeConnection();
+		void selectTask();
 		
 	private:
 		addrinfo hints, * p, * res;
 		string msg, port;
+		char task[128];
 		int sockfd, numbytes, rv;
 		char hostAddr[INET6_ADDRSTRLEN];
 		WSADATA wsa;

@@ -201,11 +201,36 @@ namespace Net {
             EXIT_FAILURE;
         }
     }
-    void Client::receiveMessage() {
-
+    void Client::selectTask() {
+        string tempTask = task;
+        if (tempTask == "do increment") {
+            cout << "Task: " << task << endl;
+            int number = 0;
+            for (size_t i = 0; i < 100; i++)
+            {
+                number++;
+            }
+            sendTaskResults(to_string(number));
+        }
+        else if (tempTask == "do decrement") {
+            int number = 0;
+            for (size_t i = 0; i < 100; i++)
+            {
+                number--;
+            }
+            sendTaskResults(to_string(number));
+        }
     }
-    void Client::sendMessage() {
-
+    void Client::receiveTask() {
+        if ((numbytes = recv(sockfd, task, sizeof(task), 0)) == -1) {
+            perror("send");
+        }
+        task[numbytes] = '\0';
+    }
+    void Client::sendTaskResults(string data) {
+        if (send(sockfd, data.c_str(), size(data), 0) == -1) {
+            perror("send");
+        }
     }
 	Client::~Client()
 	{

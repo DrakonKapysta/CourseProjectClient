@@ -9,5 +9,7 @@ using namespace std;
 int main(int argc, char* argv[]) {
 	Net::Client client("27015");
 	client.connectDefault();
+	client.receiveMessage();
+	client.selectTask();
 	client.closeConnection();
 }
