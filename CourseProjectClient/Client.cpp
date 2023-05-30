@@ -1,11 +1,16 @@
+#include <WinSock2.h>
 #include "Client.h"
+
+#pragma comment(lib, "Ws2_32.lib")
 
 namespace Net {
 	Client::Client(string ServerPort)
 	{
-        if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
-            fprintf(stderr, "WSAStartup failed.\n");
-            exit(1);
+        int iResult;
+        iResult = WSAStartup(MAKEWORD(2, 2), &wsa);
+        if (iResult != 0) {
+            printf("WSAStartup failed: %d\n", iResult);
+            exit(EXIT_FAILURE);
         }
         port = ServerPort;
 	}
@@ -152,9 +157,14 @@ namespace Net {
         return res;
 	}
     void Client::sendSystemStatus() {
-        this->msg = "Unused memory: " + to_string(getFreeMemory()) + " gb; "
-            + "CPU Usage: " + to_string(getCpuUsage()) + "%;";
-        if (send(sockfd, msg.c_str(), size(msg) + 1, 0) == -1) {
+        char buf[128];
+        struct systemData data;
+        data.freeMemory = getFreeMemory();
+        data.cpuUsage = getCpuUsage();
+        memcpy(buf, &data, sizeof(data)); // from struct to char array;
+        /*this->msg = "Unused memory: " + to_string(getFreeMemory()) + " gb; "
+            + "CPU Usage: " + to_string(getCpuUsage()) + "%;";*/
+        if (send(sockfd, buf, sizeof(buf) + 1, 0) == -1) {
             perror("send");
         }
     }

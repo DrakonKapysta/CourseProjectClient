@@ -1,5 +1,4 @@
 #pragma once
-#include <windows.h>
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -10,10 +9,21 @@
 #include <WinSock2.h>
 #include <ws2tcpip.h>
 #include <string>
+#include <cassert>
+#include <unordered_map>
+#include <vector>
+#include <errno.h>
+#include <tchar.h>
+#include <strsafe.h>
+#include <Windows.h>
+#include <stdio.h> 
+#include <istream>
+#include <fstream>
 
 #pragma comment(lib, "wbemuuid.lib")
 #pragma comment(lib, "pdh.lib")
-#pragma comment (lib, "Ws2_32.lib")
+#pragma comment(lib, "Ws2_32.lib")
+
 using namespace std;
 
 namespace Net {
@@ -40,6 +50,10 @@ namespace Net {
 	private:
 		void* get_in_addr(struct sockaddr*);
 		void init();
+		struct systemData { // struct with system info
+			int cpuUsage;
+			double freeMemory;
+		};
 	};
 
 	
