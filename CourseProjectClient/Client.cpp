@@ -204,7 +204,6 @@ namespace Net {
     void Client::selectTask() {
         string tempTask = task;
         if (tempTask == "do increment") {
-            cout << "Task: " << task << endl;
             int number = 0;
             for (size_t i = 0; i < 100; i++)
             {
