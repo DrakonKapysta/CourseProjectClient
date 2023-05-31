@@ -21,7 +21,7 @@ namespace Net {
         }
         return &(((struct sockaddr_in6*)&sa)->sin6_addr);
     }
-	double Client::getFreeMemory() {
+    float Client::getFreeMemory() {
 		MEMORYSTATUSEX memoryStatus;
 		memoryStatus.dwLength = sizeof(memoryStatus);
 
@@ -158,12 +158,10 @@ namespace Net {
 	}
     void Client::sendSystemStatus() {
         char buf[128];
-        struct systemData data;
-        data.freeMemory = getFreeMemory();
+        struct ClientData data;
+        data.freeMemSpace = getFreeMemory();
         data.cpuUsage = getCpuUsage();
         memcpy(buf, &data, sizeof(data)); // from struct to char array;
-        /*this->msg = "Unused memory: " + to_string(getFreeMemory()) + " gb; "
-            + "CPU Usage: " + to_string(getCpuUsage()) + "%;";*/
         if (send(sockfd, buf, sizeof(buf) + 1, 0) == -1) {
             perror("send");
         }
@@ -199,6 +197,29 @@ namespace Net {
         if ((rv = getaddrinfo(NULL, port.c_str(), &hints, &res)) != 0) {
             fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
             EXIT_FAILURE;
+        }
+    }
+    void Client::selectTaskEnum() {
+        int number = 0;
+        switch ((Tasks)atoi(task))
+        {
+        case Tasks::DoIncrement:
+            for (size_t i = 0; i < 100; i++)
+            {
+                number++;
+            }
+            sendTaskResults(to_string(number));
+            break;
+        case Tasks::DoDecrement:
+            for (size_t i = 0; i < 100; i++)
+            {
+                number--;
+            }
+            sendTaskResults(to_string(number));
+            break;
+        default:
+            sendTaskResults("There is not such function");
+            break;
         }
     }
     void Client::selectTask() {

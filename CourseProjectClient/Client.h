@@ -26,13 +26,18 @@
 
 using namespace std;
 
+enum class Tasks {
+	DoIncrement,
+	DoDecrement,
+};
+
 namespace Net {
 	class Client
 	{
 	public:
 		Client(string ServerPort);
 		~Client();
-		double getFreeMemory();
+		float getFreeMemory();
 		int getCpuUsage();
 		void connectDefault();
 		//void connectTo(string ServerPort);
@@ -41,9 +46,11 @@ namespace Net {
 		void sendSystemStatus();
 		void closeConnection();
 		void selectTask();
+		void selectTaskEnum();
 		
 	private:
 		addrinfo hints, * p, * res;
+		Tasks taskEnum;
 		string msg, port;
 		char task[128];
 		int sockfd, numbytes, rv;
@@ -52,11 +59,12 @@ namespace Net {
 	private:
 		void* get_in_addr(struct sockaddr*);
 		void init();
-		struct systemData { // struct with system info
-			int cpuUsage;
-			double freeMemory;
+		struct ClientData
+		{
+			int cpuUsage{};
+			double freeMemSpace{};
+			double data{};
 		};
+		
 	};
-
-	
 }
