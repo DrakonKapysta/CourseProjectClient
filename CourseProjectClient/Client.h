@@ -40,7 +40,7 @@ namespace Net {
 		float getFreeMemory();
 		int getCpuUsage();
 		void connectDefault();
-		//void connectTo(string ServerPort);
+		void connectToHub(string serverPort);
 		void receiveTask();
 		void sendTaskResults(string data);
 		void sendSystemStatus();
@@ -53,7 +53,7 @@ namespace Net {
 		Tasks taskEnum;
 		string msg, port;
 		char task[128];
-		int sockfd, numbytes, rv;
+		int sockfd, numbytes, rv, hubfd;
 		char hostAddr[INET6_ADDRSTRLEN];
 		WSADATA wsa;
 	private:

@@ -188,7 +188,34 @@ namespace Net {
         inet_ntop(p->ai_family, get_in_addr((struct sockaddr*)p->ai_addr), hostAddr, sizeof(hostAddr));
         printf("client: connecting to %s\n", hostAddr);
         freeaddrinfo(res);
-        sendSystemStatus();
+    }
+    void Client::connectToHub(string serverPort) {
+        memset(&hints, 0, sizeof(hints));
+        hints.ai_family = AF_INET;
+        hints.ai_socktype = SOCK_STREAM;
+        if ((rv = getaddrinfo(NULL, serverPort.c_str(), &hints, &res)) != 0) {
+            fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+            EXIT_FAILURE;
+        }
+        for (p = res; p != NULL; p = p->ai_next) {
+            if ((hubfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+                perror("client: socket");
+                continue;
+            }
+            if (connect(hubfd, p->ai_addr, p->ai_addrlen) == -1) {
+                closesocket(hubfd);
+                perror("client: connect");
+                continue;
+            }
+            break;
+        }
+        if (p == NULL) {
+            fprintf(stderr, "client: failed to connect\n");
+            EXIT_FAILURE;
+        }
+        inet_ntop(p->ai_family, get_in_addr((struct sockaddr*)p->ai_addr), hostAddr, sizeof(hostAddr));
+        printf("client: connecting to %s\n", hostAddr);
+        freeaddrinfo(res);
     }
     void Client::init() {
         memset(&hints,0,sizeof(hints));
