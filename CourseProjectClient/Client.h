@@ -26,11 +26,22 @@
 
 using namespace std;
 
-enum class Tasks {
-	DoIncrement,
-	DoDecrement,
+enum class Task {
+	Myltiply,
+	Divide,
+	Pow,
 };
-
+struct TaskData {
+	double a{};
+	double b{};
+	Task task{};
+};
+struct ClientData
+{
+	int cpuUsage{};
+	double freeMemSpace{};
+	double data{};
+};
 namespace Net {
 	class Client
 	{
@@ -42,7 +53,7 @@ namespace Net {
 		void connectDefault();
 		void connectToHub(string serverPort);
 		void receiveTask();
-		void sendTaskResults(string data);
+		void sendTaskResults(double data);
 		void sendSystemStatus();
 		void closeConnection();
 		void selectTask();
@@ -50,21 +61,16 @@ namespace Net {
 		
 	private:
 		addrinfo hints, * p, * res;
-		Tasks taskEnum;
+		Task taskEnum;
+		TaskData taskData;
 		string msg, port;
 		char task[128];
+		char buf[128];
 		int sockfd, numbytes, rv, hubfd;
 		char hostAddr[INET6_ADDRSTRLEN];
 		WSADATA wsa;
 	private:
 		void* get_in_addr(struct sockaddr*);
 		void init();
-		struct ClientData
-		{
-			int cpuUsage{};
-			double freeMemSpace{};
-			double data{};
-		};
-		
 	};
 }

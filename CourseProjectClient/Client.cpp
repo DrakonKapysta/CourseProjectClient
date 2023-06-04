@@ -227,25 +227,26 @@ namespace Net {
         }
     }
     void Client::selectTaskEnum() {
+        auto start = std::chrono::steady_clock::now();
+        int iterations = 0;
         int number = 0;
-        switch ((Tasks)atoi(task))
+        switch (taskData.task)
         {
-        case Tasks::DoIncrement:
-            for (size_t i = 0; i < 100; i++)
-            {
-                number++;
+        case Task::Myltiply:
+            while (true) {
+                auto current = std::chrono::steady_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::seconds>(current - start).count();
+                if (duration >= 10) {
+                    break;
+                }
             }
-            sendTaskResults(to_string(number));
+            sendTaskResults(taskData.a * taskData.b);
             break;
-        case Tasks::DoDecrement:
-            for (size_t i = 0; i < 100; i++)
-            {
-                number--;
-            }
-            sendTaskResults(to_string(number));
+        case Task::Divide:
+            sendTaskResults(taskData.a / taskData.b);
             break;
         default:
-            sendTaskResults("There is not such function");
+            sendTaskResults(NULL);
             break;
         }
     }
@@ -257,7 +258,7 @@ namespace Net {
             {
                 number++;
             }
-            sendTaskResults(to_string(number));
+            sendTaskResults(number);
         }
         else if (tempTask == "do decrement") {
             int number = 0;
@@ -265,17 +266,25 @@ namespace Net {
             {
                 number--;
             }
-            sendTaskResults(to_string(number));
+            sendTaskResults(number);
         }
     }
     void Client::receiveTask() {
         if ((numbytes = recv(sockfd, task, sizeof(task), 0)) == -1) {
             perror("send");
         }
-        task[numbytes] = '\0';
+        memcpy(&taskData, task, sizeof(taskData));
+        //task[numbytes] = '\0';
     }
-    void Client::sendTaskResults(string data) {
-        if (send(sockfd, data.c_str(), size(data), 0) == -1) {
+    void Client::sendTaskResults(double data) {
+        char buf[128];
+        struct ClientData clientData;
+        clientData.freeMemSpace = getFreeMemory();
+        clientData.cpuUsage = getCpuUsage();
+        clientData.data = data;
+        memcpy(buf, &clientData, sizeof(clientData)); // from struct to char array;
+
+        if (send(sockfd, buf, size(buf), 0) == -1) {
             perror("send");
         }
     }
