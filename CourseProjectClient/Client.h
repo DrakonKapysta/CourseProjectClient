@@ -65,7 +65,6 @@ namespace Net {
 		TaskData taskData;
 		string msg, port;
 		char task[128];
-		char buf[128];
 		int sockfd, numbytes, rv, hubfd;
 		char hostAddr[INET6_ADDRSTRLEN];
 		WSADATA wsa;
