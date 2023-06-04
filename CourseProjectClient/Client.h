@@ -19,6 +19,7 @@
 #include <stdio.h> 
 #include <istream>
 #include <fstream>
+#include <math.h>
 
 #pragma comment(lib, "wbemuuid.lib")
 #pragma comment(lib, "pdh.lib")

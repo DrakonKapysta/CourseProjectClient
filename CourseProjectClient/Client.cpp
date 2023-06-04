@@ -233,17 +233,13 @@ namespace Net {
         switch (taskData.task)
         {
         case Task::Myltiply:
-            while (true) {
-                auto current = std::chrono::steady_clock::now();
-                auto duration = std::chrono::duration_cast<std::chrono::seconds>(current - start).count();
-                if (duration >= 10) {
-                    break;
-                }
-            }
             sendTaskResults(taskData.a * taskData.b);
             break;
         case Task::Divide:
             sendTaskResults(taskData.a / taskData.b);
+            break;
+        case Task::Pow:
+            sendTaskResults(pow(taskData.a,taskData.b));
             break;
         default:
             sendTaskResults(NULL);
