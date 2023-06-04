@@ -157,12 +157,12 @@ namespace Net {
         return res;
 	}
     void Client::sendSystemStatus() {
-        char buf[128];
+        char buf[512];
         struct ClientData data;
         data.freeMemSpace = getFreeMemory();
         data.cpuUsage = getCpuUsage();
-        memcpy(buf, &data, sizeof(data)); // from struct to char array;
-        if (send(sockfd, buf, sizeof(buf) + 1, 0) == -1) {
+        memcpy(buf, &data, sizeof(ClientData)); // from struct to char array;
+        if (send(sockfd, buf, sizeof(ClientData), 0) == -1) {
             perror("send");
         }
     }
@@ -211,7 +211,7 @@ namespace Net {
         }
         if (p == NULL) {
             fprintf(stderr, "client: failed to connect\n");
-            EXIT_FAILURE;
+            exit(EXIT_FAILURE);
         }
         inet_ntop(p->ai_family, get_in_addr((struct sockaddr*)p->ai_addr), hostAddr, sizeof(hostAddr));
         printf("client: connecting to %s\n", hostAddr);
@@ -219,32 +219,42 @@ namespace Net {
     }
     void Client::init() {
         memset(&hints,0,sizeof(hints));
-        hints.ai_family = AF_INET;
+        hints.ai_family = AF_UNSPEC;
+        hints.ai_protocol = IPPROTO_TCP;
         hints.ai_socktype = SOCK_STREAM;
-        if ((rv = getaddrinfo(NULL, port.c_str(), &hints, &res)) != 0) {
+        hints.ai_flags = 0;
+        hints.ai_addr = NULL;
+        hints.ai_canonname = NULL;
+        hints.ai_next = NULL;
+        if ((rv = getaddrinfo("localhost", "27015", &hints, &res)) != 0) {
             fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-            EXIT_FAILURE;
+            exit(EXIT_FAILURE);
         }
     }
-    void Client::selectTaskEnum() {
+    int Client::selectTaskEnum() {
         auto start = std::chrono::steady_clock::now();
         int iterations = 0;
         int number = 0;
+
+        int result{};
+
         switch (taskData.task)
         {
-        case Task::Myltiply:
-            sendTaskResults(taskData.a * taskData.b);
+        case Task::Multiply:
+            result = sendTaskResults(taskData.a * taskData.b);
             break;
         case Task::Divide:
-            sendTaskResults(taskData.a / taskData.b);
+            result = sendTaskResults(taskData.a / taskData.b);
             break;
         case Task::Pow:
-            sendTaskResults(pow(taskData.a,taskData.b));
+            result = sendTaskResults(pow(taskData.a,taskData.b));
             break;
         default:
-            sendTaskResults(NULL);
+            result = sendTaskResults(0);
             break;
         }
+
+        return result;
     }
     void Client::selectTask() {
         string tempTask = task;
@@ -265,24 +275,40 @@ namespace Net {
             sendTaskResults(number);
         }
     }
-    void Client::receiveTask() {
+    int Client::receiveTask() {
         if ((numbytes = recv(sockfd, task, sizeof(task), 0)) == -1) {
-            perror("send");
+            perror("recv");
+
+            closesocket(sockfd);
+
+            return -1;
         }
         memcpy(&taskData, task, sizeof(taskData));
+
+        if (taskData.task == Task::Disconnect)
+        {
+            return -1;
+        }
+
         //task[numbytes] = '\0';
     }
-    void Client::sendTaskResults(double data) {
+    int Client::sendTaskResults(double data) {
         char buf[128];
         struct ClientData clientData;
         clientData.freeMemSpace = getFreeMemory();
         clientData.cpuUsage = getCpuUsage();
         clientData.data = data;
-        memcpy(buf, &clientData, sizeof(clientData)); // from struct to char array;
+        memcpy(buf, &clientData, sizeof(ClientData)); // from struct to char array;
 
-        if (send(sockfd, buf, size(buf), 0) == -1) {
+        if (send(sockfd, buf, sizeof(ClientData), 0) == -1) {
             perror("send");
+
+            closesocket(sockfd);
+
+            return -1;
         }
+
+        return 0;
     }
 	Client::~Client()
 	{

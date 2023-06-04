@@ -27,10 +27,12 @@
 
 using namespace std;
 
-enum class Task {
-	Myltiply,
+enum class Task
+{
+	Multiply,
 	Divide,
 	Pow,
+	Disconnect
 };
 struct TaskData {
 	double a{};
@@ -53,12 +55,12 @@ namespace Net {
 		int getCpuUsage();
 		void connectDefault();
 		void connectToHub(string serverPort);
-		void receiveTask();
-		void sendTaskResults(double data);
+		int receiveTask();
+		int sendTaskResults(double data);
 		void sendSystemStatus();
 		void closeConnection();
 		void selectTask();
-		void selectTaskEnum();
+		int selectTaskEnum();
 		
 	private:
 		addrinfo hints, * p, * res;
