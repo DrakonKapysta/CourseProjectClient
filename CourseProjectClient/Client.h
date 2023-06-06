@@ -34,7 +34,8 @@ enum class Task
 	Pow,
 	Disconnect
 };
-struct TaskData {
+struct TaskData 
+{
 	double a{};
 	double b{};
 	Task task{};

@@ -226,7 +226,7 @@ namespace Net {
         hints.ai_addr = NULL;
         hints.ai_canonname = NULL;
         hints.ai_next = NULL;
-        if ((rv = getaddrinfo("localhost", "27015", &hints, &res)) != 0) {
+        if ((rv = getaddrinfo(NULL, "27015", &hints, &res)) != 0) {
             fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
             exit(EXIT_FAILURE);
         }
@@ -277,13 +277,15 @@ namespace Net {
     }
     int Client::receiveTask() {
         if ((numbytes = recv(sockfd, task, sizeof(task), 0)) == -1) {
-            perror("recv");
+            cerr << "recv error: " << WSAGetLastError() << endl;
 
             closesocket(sockfd);
 
             return -1;
         }
         memcpy(&taskData, task, sizeof(taskData));
+
+        cout << taskData.a << " " << taskData.b << endl;
 
         if (taskData.task == Task::Disconnect)
         {
@@ -299,6 +301,8 @@ namespace Net {
         clientData.cpuUsage = getCpuUsage();
         clientData.data = data;
         memcpy(buf, &clientData, sizeof(ClientData)); // from struct to char array;
+
+        cout << "Sent: " << data << endl;
 
         if (send(sockfd, buf, sizeof(ClientData), 0) == -1) {
             perror("send");
